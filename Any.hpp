@@ -44,7 +44,7 @@ namespace mc {
 
         //perfect fowarding constructor
         template <class ValueType,
-                  typename std::enable_if<!(std::is_same<typename std::remove_reference<ValueType>::type, Any&>::value || //  go away Any&, the copy constructor is right there
+                  typename std::enable_if<!(std::is_same<ValueType, Any&>::value || //  go away Any&, the copy constructor is right there
                                             std::is_const<ValueType>::value)>::type* = nullptr> // no const ValueType && shall pass
         explicit Any(ValueType && objectToStore) : _holder(new AnyKeeper<typename std::decay<ValueType>::type>(static_cast<ValueType&&>(objectToStore)))
         {
