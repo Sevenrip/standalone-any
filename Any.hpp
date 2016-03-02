@@ -18,7 +18,7 @@ namespace mc {
         };
       
         
-        template <class ValueType>
+        template <typename ValueType>
         struct AnyKeeper : public AnyKeeperBase
         {
             AnyKeeper(const ValueType & obj) : _storedObject(obj) {}
@@ -43,7 +43,7 @@ namespace mc {
     public:
 
         //perfect fowarding constructor
-        template <class ValueType,
+        template <typename ValueType,
                   typename std::enable_if<!(std::is_same<ValueType, Any&>::value || //  go away Any&, the copy constructor is right there
                                             std::is_const<ValueType>::value)>::type* = nullptr> // no const ValueType && shall pass
         explicit Any(ValueType && objectToStore) : _holder(new AnyKeeper<typename std::decay<ValueType>::type>(static_cast<ValueType&&>(objectToStore)))
@@ -68,7 +68,7 @@ namespace mc {
             return *this;
         }
 
-        template <class ValueType>
+        template <typename ValueType>
         Any & operator=(ValueType&& rhs)
         {
             Any(static_cast<ValueType&&>(rhs)).swap(*this);
@@ -94,13 +94,6 @@ namespace mc {
         const std::type_info& type() const noexcept
         {
             return _holder ? _holder->type() : typeid(void);
-        }
-        
-        //just here to explain stuff
-        template<typename ValueType>
-        ValueType & anyCast()
-        {
-            return anyCast<ValueType>(const_cast<Any&>(*this));
         }
         
         std::unique_ptr<AnyKeeperBase> _holder;
@@ -136,10 +129,9 @@ namespace mc {
         using nonref = typename std::remove_reference<ValueType>::type;
         nonref * result = anyCast<nonref>(&operand);
         
-        if(result == nullptr)
+        if(result == nullptr) {
             throw BadAnyCast();
-        
-        return static_cast<ValueType>(*result);
+        }
         
         using ref_type = typename std::conditional<std::is_reference<ValueType>::value,
                                         ValueType,
